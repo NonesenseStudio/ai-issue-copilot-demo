@@ -23,7 +23,7 @@ export async function createGithubIssue(input: GithubIssueInput): Promise<{
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
       "Content-Type": "application/json",
-      'X-GitHub-Api-Version': '2026-03-10',
+      "X-GitHub-Api-Version": "2026-03-10",
       "User-Agent": "ai-issue-copilot",
     },
     signal: AbortSignal.timeout(15000),

@@ -2,6 +2,8 @@
 import { onMounted, ref } from "vue";
 import { issueApi, type Issue, type Priority, aiApi } from "./api/issues";
 import AiAssistant from "@/components/AiAssistant.vue";
+import KnowledgeAssistant from "./components/KnowledgeAssistant.vue";
+import AgentWorkflow from "./components/AgentWorkflow.vue";
 
 const issues = ref<Issue[]>([]);
 const title = ref("");
@@ -172,6 +174,8 @@ onMounted(loadIssues);
       </li>
     </ul>
     <AiAssistant />
+    <KnowledgeAssistant />
+    <AgentWorkflow />
   </main>
 </template>
 
