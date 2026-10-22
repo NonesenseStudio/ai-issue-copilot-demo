@@ -5,6 +5,7 @@ import { issueRoutes } from "./issues.js";
 import { integrationRoutes } from "./integrationst.js";
 import { knowledgeRoutes } from "./knowledge.js";
 import { agentRoutes } from "./agent.js";
+import { metricsRoutes } from "./metrics.js";
 
 const apiRoutes = new Hono();
 
@@ -14,5 +15,6 @@ apiRoutes.route("/api", aiRoutes);
 apiRoutes.route("/api", integrationRoutes);
 apiRoutes.route("/api", knowledgeRoutes);
 apiRoutes.route("/api", agentRoutes);
+apiRoutes.route("/api", metricsRoutes);
 
 export { apiRoutes };

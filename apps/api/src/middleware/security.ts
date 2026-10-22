@@ -1,5 +1,12 @@
 import { basicAuth } from "hono/basic-auth";
 import type { MiddlewareHandler } from "hono";
+import type { AuthPrincipal } from "../security/access.js";
+
+declare module "hono" {
+  interface ContextVariableMap {
+    principal: AuthPrincipal;
+  }
+}
 
 export function demoAuth(): MiddlewareHandler {
   const username = process.env.DEMO_USERNAME;
@@ -12,6 +19,14 @@ export function demoAuth(): MiddlewareHandler {
   const auth = basicAuth({
     username,
     password,
+    onAuthSuccess: (c) => {
+      const principal: AuthPrincipal = {
+        userId: "demo-user",
+        role: "user",
+      };
+
+      c.set("principal", principal);
+    },
   });
 
   return (c, next) => {

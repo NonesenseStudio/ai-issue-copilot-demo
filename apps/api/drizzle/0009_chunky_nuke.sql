@@ -1,0 +1,1 @@
+ALTER TABLE "agent_runs" ADD COLUMN "owner_id" text DEFAULT 'demo-user' NOT NULL;

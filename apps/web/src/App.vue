@@ -4,6 +4,7 @@ import { issueApi, type Issue, type Priority, aiApi } from "./api/issues";
 import AiAssistant from "@/components/AiAssistant.vue";
 import KnowledgeAssistant from "./components/KnowledgeAssistant.vue";
 import AgentWorkflow from "./components/AgentWorkflow.vue";
+import AgentMetrics from "./components/AgentMetrics.vue";
 
 const issues = ref<Issue[]>([]);
 const title = ref("");
@@ -110,6 +111,7 @@ onMounted(loadIssues);
 
 <template>
   <main class="container">
+    <AgentMetrics />
     <h1>AI Issue Copilot</h1>
     <p>Week 1 · 全栈 CRUD</p>
     <section class="ai-panel">

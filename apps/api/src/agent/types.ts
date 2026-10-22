@@ -6,6 +6,7 @@ export const agentStatuses = [
   "completed",
   "failed",
   "rejected",
+  "needs_reconciliation",
 ] as const;
 
 export type AgentStatus = (typeof agentStatuses)[number];

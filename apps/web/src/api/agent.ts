@@ -17,6 +17,18 @@ export type AgentRun = {
   error: string | null;
 };
 
+export type AgentStepLog = {
+  id: string;
+  runId: string;
+  step: string;
+  attempt: number;
+  status: "running" | "completed" | "failed";
+  metadata: Record<string, unknown> | null;
+  errorCode: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+};
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...options,
@@ -49,4 +61,8 @@ export async function decideAgentRun(
   decision: "approve" | "reject",
 ) {
   return request(`/api/agent/runs/${id}/${decision}`, { method: "POST" });
+}
+
+export async function getAgentLogs(runId: string) {
+  return request<{ data: AgentStepLog[] }>(`/api/agent/runs/${runId}/logs`);
 }

@@ -1,10 +1,12 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq, and, asc } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { agentRuns } from "../db/agent-schema.js";
 import { startAgent, executeAgent } from "../agent/executor.js";
 import { createGithubIssue } from "@/integrations/github.js";
+import { buildGithubIssueBody } from "@/agent/github.js";
+import { agentStepLogs } from "@/db/agent-log-schema.js";
 
 export const agentRoutes = new Hono();
 
@@ -88,7 +90,12 @@ agentRoutes.post("/agent/runs/:id/approve", async (c) => {
   try {
     // 复用第 3 周已实现的 GitHub API
     // 按实际函数签名调整参数
-    const result = await createGithubIssue(run.draft);
+    const body = buildGithubIssueBody(run.draft.body, run.id);
+
+    const result = await createGithubIssue({
+      title: run.draft.title,
+      body,
+    });
 
     await db
       .update(agentRuns)
@@ -106,19 +113,25 @@ agentRoutes.post("/agent/runs/:id/approve", async (c) => {
       },
     });
   } catch (error) {
-    console.error("GitHub execution failed:", error);
+    console.error("GitHub outcome uncertain", {
+      runId: id,
+      error,
+    });
 
     await db
       .update(agentRuns)
       .set({
-        status: "failed",
-        error: "GitHub outcome requires verification",
+        status: "needs_reconciliation",
+        error: "GITHUB_OUTCOME_UNKNOWN",
         updatedAt: new Date(),
       })
-      .where(eq(agentRuns.id, id));
+      .where(and(eq(agentRuns.id, id), eq(agentRuns.status, "executing")));
 
     return c.json(
-      { error: "Execution failed; verify GitHub before retrying" },
+      {
+        error: "GitHub outcome requires verification",
+        runId: id,
+      },
       502,
     );
   }
@@ -147,4 +160,30 @@ agentRoutes.post("/agent/runs/:id/reject", async (c) => {
   return c.json({
     data: { status: "rejected" },
   });
+});
+
+agentRoutes.get("/agent/runs/:id/logs", async (c) => {
+  const id = c.req.param("id");
+
+  if (!z.string().uuid().safeParse(id).success) {
+    return c.json({ error: "Invalid ID" }, 400);
+  }
+
+  const [run] = await db
+    .select({ id: agentRuns.id })
+    .from(agentRuns)
+    .where(eq(agentRuns.id, id))
+    .limit(1);
+
+  if (!run) {
+    return c.json({ error: "Not found" }, 404);
+  }
+
+  const logs = await db
+    .select()
+    .from(agentStepLogs)
+    .where(eq(agentStepLogs.runId, id))
+    .orderBy(asc(agentStepLogs.startedAt));
+
+  return c.json({ data: logs });
 });

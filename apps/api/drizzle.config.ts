@@ -11,6 +11,9 @@ export default defineConfig({
     "./src/db/schema.ts",
     "./src/db/knowledge-schema.ts",
     "./src/db/agent-schema.ts",
+    "./src/db/agent-log-schema.ts",
+    "./src/db/ai-metrics-schema.ts",
+    "./src/db/budget-schema.ts",
   ],
   out: "./drizzle",
   dbCredentials: {

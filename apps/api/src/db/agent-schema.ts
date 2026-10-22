@@ -29,4 +29,10 @@ export const agentRuns = pgTable("agent_runs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+
+  leaseUntil: timestamp("lease_until"),
+
+  leaseToken: uuid("lease_token"),
+
+  ownerId: text("owner_id").notNull().default("demo-user"),
 });
